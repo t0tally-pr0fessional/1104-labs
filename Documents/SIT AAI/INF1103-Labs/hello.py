@@ -1,13 +1,17 @@
 print("=====================")
 print("welcome here")
 print("my first post!")
-print("=====================")
 
-username = "totally original"
+
+username = input("Add Username: ")
+age = input("Add Age: ")   
+category = input("Add Content Category: ")
 bio = "coding noob"
 followers = 100
+print("\nInstagram Profile")
+print("=====================")
 print("Username: ", username)
-print("Bio: ", bio)
-print("followers: ", followers)
+print("Age: ", age)
+print("Category: ", category)
 
 
