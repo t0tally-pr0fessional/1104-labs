@@ -1,5 +1,5 @@
 print("Inventory system")
-totalInventory= 0
+
 failedEntires = 0
 unitsProcessed = 0
 INVENTORY_FILE = "inventory.txt"
@@ -17,14 +17,16 @@ def load_inventory():
         pass
     return orders
 
-def save_inventory():
-     return
+def save_inventory(orders):
+    with open(INVENTORY_FILE, "w") as file:
+        for order_id, name, quantity in orders:
+            file.write(str(order_id) + ", " + name + ", " + str(quantity) + "\n")
 
 def get_valid_input():
-    itemInput = input("Enter product name(type 'quit' to end): ").strip
+    itemInput = input("Enter product name(type 'quit' to end): ").strip()
     
 
-    if itemInput.lower() =="quit":
+    if str(itemInput).lower() =="quit":
          return "quit"
     elif itemInput == "":
          print("Please input a valid name")
@@ -34,12 +36,14 @@ def get_valid_input():
     if userInput.lstrip("-").isdigit() == False:
             print("Please input a valid number not text.")
             return None
-    
+    if int(userInput) > 500:
+         print("Please input a valid number not text.")
+         return None
     if int(userInput) <0:
             print("Please input a positive number")
             return None
     new_value = int(userInput)      
-    return new_value, itemInput
+    return itemInput, new_value
 
 def process_delivery(current_total, new_value):
     return current_total + new_value
@@ -60,6 +64,7 @@ def print_orders(orders):
     print()
 
 orders = load_inventory()
+totalInventory= 0
 for order in orders:
     totalInventory = process_delivery(totalInventory, order[2])
 
@@ -69,6 +74,7 @@ while True:
     userInput = get_valid_input()
 
     if userInput == "quit":
+         save_inventory(orders)
          generate_report(totalInventory, failedEntires)
          break
 
@@ -76,13 +82,22 @@ while True:
          failedEntires += 1
          continue
 
-    tax = calculate_tax(userInput)
-    totalInventory = process_delivery(totalInventory,userInput)
+    name, quantity = userInput
+    if len(orders) > 0:
+            order_id = orders[-1][0] + 1
+    else:
+            order_id = 1001
+    orders.append((order_id, name, quantity))
+    totalInventory = process_delivery(totalInventory, quantity)
+
+    tax = calculate_tax(quantity)
     print("New total inventory: " + str(totalInventory))
     print("Tax for this delivery: " + str(tax))
-
-    if totalInventory > 500:
-         print("WARNING: INVENTORY HAS EXCEEDED 500 UNITS")
-         break
+    
+    print()
+    print("New Order Added:")
+    print(str(order_id) + "," + name + "," + str(quantity))
+    print("Tax for this order: " + str(calculate_tax(quantity)))
+    print()
     continue
-        
+    
