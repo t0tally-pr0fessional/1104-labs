@@ -1,20 +1,27 @@
+import json
+import os
+
 print("========================================")
 print("INVENTORY MANAGEMENT SYSTEM")
 print("========================================")
 print()
 
-# Each product is a dictionary, all products are stored in a list
-inventory = [
-    {"id": "P001", "name": "Laptop", "price": 1200.0, "stock": 15},
-    {"id": "P002", "name": "Mouse", "price": 25.5, "stock": 40},
-    {"id": "P003", "name": "Keyboard", "price": 45.0, "stock": 25},
-]
-# History of every transaction amount, not just the running total
-history = [
-    {"type": "add", "id": "P001", "amount": 15},
-    {"type": "add", "id": "P002", "amount": 40},
-    {"type": "add", "id": "P003", "amount": 25},
-]
+INVENTORY_FILE = "inventory.json"
+
+
+def load_inventory():
+    if os.path.exists(INVENTORY_FILE):
+        print(INVENTORY_FILE + " found.")
+        try:
+            with open(INVENTORY_FILE, "r") as file:
+                data = json.load(file)
+            print("Inventory loaded successfully.")
+            return data.get("products", []), data.get("history", [])
+        except (json.JSONDecodeError, AttributeError):
+            print(INVENTORY_FILE + " is corrupted. Starting with an empty inventory.")
+            return [], []
+    print(INVENTORY_FILE + " not found. Starting with an empty inventory.")
+    return [], []
 
 
 def find_product(products, product_id):
@@ -128,6 +135,9 @@ def print_menu():
     print("----------------------------")
 
 
+# Each product is a dictionary, all products are stored in a list
+# history keeps every transaction amount, not just the running total
+inventory, history = load_inventory()
 print_menu()
 
 while True:
