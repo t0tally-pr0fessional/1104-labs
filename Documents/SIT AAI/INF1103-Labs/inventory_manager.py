@@ -24,6 +24,11 @@ def load_inventory():
     return [], []
 
 
+def save_inventory(products, transactions):
+    with open(INVENTORY_FILE, "w") as file:
+        json.dump({"products": products, "history": transactions}, file, indent=4)
+
+
 def find_product(products, product_id):
     for product in products:
         if product["id"].lower() == product_id.lower():
@@ -131,6 +136,7 @@ def print_menu():
     print("2. Add Product")
     print("3. Update Stock")
     print("4. Search Product")
+    print("5. Save Inventory")
     print("6. Exit")
     print("----------------------------")
 
@@ -142,7 +148,10 @@ print_menu()
 
 while True:
     print()
-    option = input("Enter option: ").strip()
+    try:
+        option = input("Enter option: ").strip()
+    except EOFError:
+        option = "6"
 
     if option == "1":
         display_all(inventory)
@@ -152,11 +161,20 @@ while True:
         update_stock(inventory, history)
     elif option == "4":
         search_product(inventory)
+    elif option == "5":
+        print()
+        print("Saving inventory...")
+        save_inventory(inventory, history)
+        print("Inventory saved successfully to " + INVENTORY_FILE + ".")
     elif option == "6":
+        print()
+        print("Saving inventory before exit...")
+        save_inventory(inventory, history)
+        print("Inventory saved successfully.")
         print()
         print("Thank you for using Inventory Management System.")
         print("Program terminated.")
         break
     else:
-        print("Invalid option. Please enter 1-4 or 6.")
+        print("Invalid option. Please enter 1-6.")
         print_menu()
