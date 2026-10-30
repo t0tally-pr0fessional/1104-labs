@@ -1,6 +1,9 @@
 import json
 import os
 
+from inventory import Inventory
+from product import Product
+
 print("========================================")
 print("INVENTORY MANAGEMENT SYSTEM")
 print("========================================")
@@ -10,30 +13,30 @@ INVENTORY_FILE = "inventory.json"
 
 
 def load_inventory():
+    inventory = Inventory()
     if os.path.exists(INVENTORY_FILE):
         print(INVENTORY_FILE + " found.")
         try:
             with open(INVENTORY_FILE, "r") as file:
                 data = json.load(file)
+            for item in data.get("products", []):
+                inventory.add_product(Product(item["id"], item["name"], item["price"], item["stock"]))
             print("Inventory loaded successfully.")
-            return data.get("products", []), data.get("history", [])
-        except (json.JSONDecodeError, AttributeError):
+            return inventory, data.get("history", [])
+        except (json.JSONDecodeError, AttributeError, KeyError, TypeError):
             print(INVENTORY_FILE + " is corrupted. Starting with an empty inventory.")
-            return [], []
+            return Inventory(), []
     print(INVENTORY_FILE + " not found. Starting with an empty inventory.")
-    return [], []
+    return inventory, []
 
 
-def save_inventory(products, transactions):
+def save_inventory(inventory, transactions):
+    products = []
+    for product in inventory.get_products():
+        products.append({"id": product.get_product_id(), "name": product.get_name(),
+                         "price": product.get_price(), "stock": product.get_stock()})
     with open(INVENTORY_FILE, "w") as file:
         json.dump({"products": products, "history": transactions}, file, indent=4)
-
-
-def find_product(products, product_id):
-    for product in products:
-        if product["id"].lower() == product_id.lower():
-            return product
-    return None
 
 
 def get_number(prompt, number_type):
@@ -50,27 +53,14 @@ def get_number(prompt, number_type):
         return value
 
 
-def display_all(products):
-    print()
-    print("Current Inventory")
-    print("------------------------------------------------")
-    if len(products) == 0:
-        print("Inventory is empty.")
-    for product in products:
-        print("ID: " + product["id"] + " | Name: " + product["name"]
-              + " | Price: $" + format(product["price"], ".2f")
-              + " | Stock: " + str(product["stock"]))
-    print("------------------------------------------------")
-
-
-def add_product(products, transactions):
+def add_product(inventory, transactions):
     print()
     print("Add New Product")
     product_id = input("Product ID: ").strip().upper()
     if product_id == "":
         print("Please input a valid ID")
         return
-    if find_product(products, product_id) is not None:
+    if inventory.search_product(product_id) is not None:
         print("Product ID already exists.")
         return
     name = input("Product Name: ").strip()
@@ -80,17 +70,17 @@ def add_product(products, transactions):
     price = get_number("Price: ", float)
     stock = get_number("Stock Quantity: ", int)
 
-    products.append({"id": product_id, "name": name, "price": price, "stock": stock})
+    inventory.add_product(Product(product_id, name, price, stock))
     transactions.append({"type": "add", "id": product_id, "amount": stock})
     print()
     print("Product added successfully!")
 
 
-def update_stock(products, transactions):
+def update_stock(inventory, transactions):
     print()
     print("Update Stock")
     product_id = input("Enter Product ID: ").strip()
-    product = find_product(products, product_id)
+    product = inventory.search_product(product_id)
     if product is None:
         print()
         print("Product not found.")
@@ -98,23 +88,23 @@ def update_stock(products, transactions):
 
     print()
     print("Product Found:")
-    print("Name: " + product["name"])
-    print("Current Stock: " + str(product["stock"]))
+    print("Name: " + product.get_name())
+    print("Current Stock: " + str(product.get_stock()))
     print()
     new_stock = get_number("New Stock Quantity: ", int)
 
-    transactions.append({"type": "update", "id": product["id"],
-                         "amount": new_stock - product["stock"]})
-    product["stock"] = new_stock
+    transactions.append({"type": "update", "id": product.get_product_id(),
+                         "amount": new_stock - product.get_stock()})
+    product.update_stock(new_stock)
     print()
     print("Stock updated successfully!")
 
 
-def search_product(products):
+def search_product(inventory):
     print()
     print("Search Product")
     product_id = input("Enter Product ID: ").strip()
-    product = find_product(products, product_id)
+    product = inventory.search_product(product_id)
     print()
     if product is None:
         print("Product not found.")
@@ -122,10 +112,10 @@ def search_product(products):
 
     print("Product Found")
     print("------------------------------------------------")
-    print("ID: " + product["id"])
-    print("Name: " + product["name"])
-    print("Price: $" + format(product["price"], ".2f"))
-    print("Stock: " + str(product["stock"]))
+    print("ID: " + product.get_product_id())
+    print("Name: " + product.get_name())
+    print("Price: $" + format(product.get_price(), ".2f"))
+    print("Stock: " + str(product.get_stock()))
     print("------------------------------------------------")
 
 
@@ -141,7 +131,7 @@ def print_menu():
     print("----------------------------")
 
 
-# Each product is a dictionary, all products are stored in a list
+# inventory is an Inventory object holding Product objects
 # history keeps every transaction amount, not just the running total
 inventory, history = load_inventory()
 print_menu()
@@ -154,7 +144,7 @@ while True:
         option = "6"
 
     if option == "1":
-        display_all(inventory)
+        inventory.display_all()
     elif option == "2":
         add_product(inventory, history)
     elif option == "3":
