@@ -115,7 +115,7 @@ def add_product(inventory: Inventory, transactions: list[dict],
     if product_id == "":
         print("Please input a valid ID")
         return
-    if inventory.search_product(product_id) is not None:
+    if inventory.find_product(product_id) is not None:
         print("Product ID already exists.")
         return
     product_type = input("Product Type (physical/digital): ").strip().lower()
@@ -149,7 +149,7 @@ def update_stock(inventory: Inventory, transactions: list[dict]) -> None:
     print()
     print("Update Stock")
     product_id = input("Enter Product ID: ").strip()
-    product = inventory.search_product(product_id)
+    product = inventory.find_product(product_id)
     if product is None:
         print()
         print("Product not found.")
@@ -173,7 +173,7 @@ def search_product(inventory: Inventory) -> None:
     print()
     print("Search Product")
     product_id = input("Enter Product ID: ").strip()
-    product = inventory.search_product(product_id)
+    product = inventory.find_product(product_id)
     print()
     if product is None:
         print("Product not found.")
