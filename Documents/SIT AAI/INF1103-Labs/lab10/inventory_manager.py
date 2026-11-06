@@ -4,6 +4,7 @@ import os
 from can_be_shipped import CanBeShipped
 from digital_product import DigitalProduct
 from inventory import Inventory
+from order import Order
 from physical_product import PhysicalProduct
 from product import Product
 from supplier import Supplier
@@ -189,6 +190,30 @@ def search_product(inventory: Inventory) -> None:
     print("------------------------------------------------")
 
 
+def create_order(inventory: Inventory, orders: list[Order]) -> None:
+    print()
+    print("Create Order")
+    order = Order("O" + format(len(orders) + 1, "03d"))
+    while True:
+        product_id = input("Product ID (leave blank to finish): ").strip()
+        if product_id == "":
+            break
+        product = inventory.find_product(product_id)
+        if product is None:
+            print("Product not found.")
+            continue
+        quantity = get_number("Quantity: ", int)
+        if not order.add_order_line(product, quantity):
+            print("Quantity must be at least 1.")
+
+    print()
+    if len(order.get_order_lines()) == 0:
+        print("No products added. Order cancelled.")
+        return
+    orders.append(order)
+    order.display_order()
+
+
 def print_menu() -> None:
     print()
     print("----------- MENU -----------")
@@ -196,15 +221,18 @@ def print_menu() -> None:
     print("2. Add Product")
     print("3. Update Stock")
     print("4. Search Product")
-    print("5. Save Inventory")
-    print("6. Exit")
+    print("5. Create Order")
+    print("6. Save Inventory")
+    print("7. Exit")
     print("----------------------------")
 
 
 # inventory is an Inventory object holding PhysicalProduct and DigitalProduct objects
 # history keeps every transaction amount, not just the running total
 # suppliers maps supplier ID to the Supplier object that products refer to
+# orders only last for the current session and are not saved
 inventory, history, suppliers = load_inventory()
+orders: list[Order] = []
 print_menu()
 
 while True:
@@ -212,7 +240,7 @@ while True:
     try:
         option = input("Enter option: ").strip()
     except EOFError:
-        option = "6"
+        option = "7"
 
     if option == "1":
         inventory.display_all()
@@ -223,11 +251,13 @@ while True:
     elif option == "4":
         search_product(inventory)
     elif option == "5":
+        create_order(inventory, orders)
+    elif option == "6":
         print()
         print("Saving inventory...")
         save_inventory(inventory, history, suppliers)
         print("Inventory saved successfully to " + INVENTORY_FILE + ".")
-    elif option == "6":
+    elif option == "7":
         print()
         print("Saving inventory before exit...")
         save_inventory(inventory, history, suppliers)
@@ -237,5 +267,5 @@ while True:
         print("Program terminated.")
         break
     else:
-        print("Invalid option. Please enter 1-6.")
+        print("Invalid option. Please enter 1-7.")
         print_menu()
