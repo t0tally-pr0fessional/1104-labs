@@ -132,7 +132,11 @@ def add_product(inventory: Inventory, transactions: list[dict],
         size = get_number("Weight (kg): ", float)
     else:
         size = get_number("Download Size (MB): ", float)
-    product = ProductFactory.create(product_type, product_id, name, price, stock, supplier, size)
+    try:
+        product = ProductFactory.create(product_type, product_id, name, price, stock, supplier, size)
+    except ValueError as error:
+        print(str(error) + " Product was not added.")
+        return
 
     inventory.add_product(product)
     transactions.append({"type": "add", "id": product_id, "amount": stock})
@@ -197,8 +201,10 @@ def create_order(inventory: Inventory, orders: list[Order]) -> None:
             print("Product not found.")
             continue
         quantity = get_number("Quantity: ", int)
-        if not order.add_order_line(product, quantity):
-            print("Quantity must be at least 1.")
+        try:
+            order.add_order_line(product, quantity)
+        except ValueError as error:
+            print(error)
 
     print()
     if len(order.get_order_lines()) == 0:

@@ -5,6 +5,9 @@ from product import Product
 class OrderLine:
     # Only Order creates OrderLine objects; a line belongs to exactly one Order
     def __init__(self, product: Product, quantity: int):
+        # Validation: the OrderLine protects its own quantity
+        if quantity <= 0:
+            raise ValueError("Quantity must be greater than zero.")
         # Association: the line refers to the Product but does not own it
         self.__product: Product = product
         self.__quantity: int = quantity
@@ -48,12 +51,10 @@ class Order:
         # Return a copy so lines cannot be added to or moved from outside the Order
         return list(self.__order_lines)
 
-    def add_order_line(self, product: Product, quantity: int) -> bool:
-        if quantity <= 0:
-            return False
+    def add_order_line(self, product: Product, quantity: int) -> None:
+        # OrderLine raises ValueError if the quantity is invalid
         order_line = OrderLine(product, quantity)
         self.__order_lines.append(order_line)
-        return True
 
     def remove_order_line(self, product_id: str) -> bool:
         for order_line in self.__order_lines:
