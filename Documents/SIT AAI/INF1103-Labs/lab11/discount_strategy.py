@@ -34,3 +34,11 @@ class BulkDiscount(DiscountStrategy):
             # Never let the discount push the total below zero
             return max(total - self.__amount, 0.0)
         return total
+
+
+class StudentDiscount(DiscountStrategy):
+    # Added later to show a new discount needs a new class, not a change to Order
+    STUDENT_PERCENTAGE: float = 5
+
+    def apply(self, total: float) -> float:
+        return total * (1 - self.STUDENT_PERCENTAGE / 100)
