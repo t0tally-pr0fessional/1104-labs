@@ -2,6 +2,7 @@ import json
 import os
 
 from can_be_shipped import CanBeShipped
+from input_helpers import get_positive_float
 from inventory import Inventory
 from order import Order
 from product import Product
@@ -122,7 +123,7 @@ def add_product(inventory: Inventory, transactions: list[dict],
     if name == "":
         print("Please input a valid name")
         return
-    price = get_number("Price: ", float)
+    price = get_positive_float("Price: ")
     stock = get_number("Stock Quantity: ", int)
     supplier = choose_supplier(suppliers)
     if supplier is None:
