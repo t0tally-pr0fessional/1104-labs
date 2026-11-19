@@ -1,0 +1,84 @@
+{
+    "products": [
+        {
+            "id": "P001",
+            "name": "Laptop",
+            "price": 1200.0,
+            "stock": 15,
+            "type": "physical",
+            "weight": 2.0
+        },
+        {
+            "id": "P002",
+            "name": "Mouse",
+            "price": 25.5,
+            "stock": 40,
+            "type": "physical",
+            "weight": 0.1
+        },
+        {
+            "id": "P003",
+            "name": "Keyboard",
+            "price": 45.0,
+            "stock": 25,
+            "type": "physical",
+            "weight": 0.8
+        },
+        {
+            "id": "P004",
+            "name": "charging cable",
+            "price": 9.0,
+            "stock": 25,
+            "type": "physical",
+            "weight": 0.1
+        },
+        {
+            "id": "P005",
+            "name": "Clock",
+            "price": 11.0,
+            "stock": 22,
+            "type": "physical",
+            "weight": 0.5
+        },
+        {
+            "id": "D001",
+            "name": "Antivirus",
+            "price": 49.9,
+            "stock": 100,
+            "type": "digital",
+            "download_size": 850.5
+        }
+    ],
+    "history": [
+        {
+            "type": "add",
+            "id": "P001",
+            "amount": 15
+        },
+        {
+            "type": "add",
+            "id": "P002",
+            "amount": 40
+        },
+        {
+            "type": "add",
+            "id": "P003",
+            "amount": 25
+        },
+        {
+            "type": "add",
+            "id": "P004",
+            "amount": 25
+        },
+        {
+            "type": "add",
+            "id": "P005",
+            "amount": 22
+        },
+        {
+            "type": "add",
+            "id": "D001",
+            "amount": 100
+        }
+    ]
+}
